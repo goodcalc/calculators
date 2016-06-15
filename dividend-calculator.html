@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+  <title>Negative Income Tax Calculator - 2013 US Census Data</title>
+  <meta charset="utf-8" /> 
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script>
+ 
+  /* LICENSE
+   Licensed under the Apache License, Version 2.0 (the "License");
+   You may not use this file except in compliance with the License.
+   You can change the html and css to make the calculator fit into the style of your site.
+   do not remove the copyright "powered by goodcalculators.com"
+   copyright belongs to goodcalculators.com 
+  */
+  </script>
+</head>
+<body>
+  <script type="text/javascript">
+  
+	function i1(n, t, i, r) {
+		this.basic = n / 100;
+		this.higher = t / 100;
+		this.additional = i / 100;
+		this.dividendAllowance = r
+	}
+
+	function r1(n, t) {
+		this.basicRate = n;
+		this.higherRate = t
+	}	
+		
+		
+   function ext1() {
+    var ds1 = document.getElementById("grosssalary1").value;	
+	var ds2 = document.getElementById("grossotherincome1").value;
+	var ds3 = document.getElementById("netdividends1").value;
+   
+		var rates = new i1(7.5, 32.5, 38.1, 5000);
+
+		var brackets = new r1(32000, 150000);
+		var grossSalary = ds1*1;
+		var grossOtherIncome = ds2*1;
+		var netDividend = ds3*1;
+				totalIncome = (function() {
+                        return grossSalary +
+                                grossOtherIncome +
+                                netDividend
+                });
+                incomeExcDividends = (function() {
+                        return grossSalary +
+                                grossOtherIncome
+                });
+		
+	
+		var dividendAllowancePA = 0;
+		 var personalAllowance = (function() {
+			return totalIncome() < 100000 ?
+				11000 : totalIncome() >
+				122000 ? 0 : (totalIncome() -
+					100000) / 2
+					
+		});
+	
+                var paAmount = (function() {
+                        var n = personalAllowance() -
+                                incomeExcDividends();
+                        return n <= 0 ? 0 : n > netDividend ?
+                                netDividend : n
+								
+                });
+				
+                var paTaxable = (function() {
+                        return paAmount() - dividendAllowancePA
+                });
+		var brAmount = (function() {
+			var n = brackets.basicRate + personalAllowance(),
+				t = netDividend - paAmount();
+			return incomeExcDividends() >= n ? 0 : t <= 0 ? 0 : totalIncome() >
+				n ? n - incomeExcDividends() - paAmount() : t
+		});
+
+                var brAllowance = (function() {
+                        return brAmount() > rates.dividendAllowance ?
+                                rates.dividendAllowance :
+                                brAmount()
+                });
+
+                var brTaxable = (function() {
+                        return brAmount() - brAllowance()
+                });
+
+                var brTax = (function() {
+                        return brTaxable() * rates.basic
+                });
+
+                var hrAmount = (function() {
+                        return totalIncome() <=
+                                brackets.basicRate ?
+                                0 : incomeExcDividends() >
+                                brackets.higherRate ?
+                                0 : totalIncome() >
+                                brackets.higherRate ?
+                                incomeExcDividends() <
+                                brackets.basicRate ?
+                                brackets.higherRate -
+                                brackets.basicRate :
+                                brackets.higherRate -
+                                incomeExcDividends() :
+                                netDividend -
+                                brAmount() - paAmount()
+                });
+                var hrAllowance = (function() {
+                        var n = rates.dividendAllowance -
+                                brAllowance();
+                        return n == 0 ? 0 : n > hrAmount() ?
+                                hrAmount() : n
+                });
+                var hrTaxable = (function() {
+                        return hrAmount() - hrAllowance()
+                });
+                var hrTax = (function() {
+                        return hrTaxable() * rates
+                                .higher
+                });
+                var arAmount = (function() {
+                        return totalIncome() >
+                                brackets.higherRate ?
+                                incomeExcDividends() >
+                                brackets.higherRate ?
+                                netDividend :
+                                totalIncome() -
+                                brackets.higherRate :
+                                0
+                });
+                var arAllowance = (function() {
+                        return brAllowance() +
+                                hrAllowance() ==
+                                rates.dividendAllowance ?
+                                0 : rates.dividendAllowance -
+                                hrAllowance() -
+                                brAllowance() >
+                                arAmount() ? arAmount() :
+                                rates.dividendAllowance -
+                                hrAllowance() -
+                                brAllowance()
+                });
+                var arTaxable = (function() {
+                        return arAmount() - arAllowance()
+                });
+                var arTax = (function() {
+                        return arTaxable() * rates.additional
+                });
+                var totalAmount = (function() {
+                        return paAmount() + brAmount() +
+                                hrAmount() + arAmount()
+                });
+                var totalAllowance = (function() {
+                        return dividendAllowancePA +
+                                brAllowance() +
+                                hrAllowance() +
+                                arAllowance()
+                });
+                var totalTaxable = (function() {
+                        return paTaxable() + brTaxable() +
+                                hrTaxable() + arTaxable()
+                });
+				
+                var totalTax = (function() {
+                        return brTax() + hrTax() +
+                                arTax()
+								
+                })
+
+	    if(document.getElementById("1cdcTax17")!== null ){document.getElementById("1cdcTax17").innerHTML = '<b>&pound;' + totalTax().toFixed(2) + '</b>';}
+	    if(document.getElementById("1cdcTax171")!== null ){document.getElementById("1cdcTax171").innerHTML = '&pound;' + arTax().toFixed(2);}
+		if(document.getElementById("1cdcTax172")!== null ){document.getElementById("1cdcTax172").innerHTML = '&pound;' + hrTax().toFixed(2);}
+		if(document.getElementById("1cdcTax173")!== null ){document.getElementById("1cdcTax173").innerHTML = '&pound;' + brTax().toFixed(2);}
+
+		}
+
+	jQuery(document).ready(function($) {
+		var i = 1;
+		var hvor = 0;
+           $("#GoodResults").hide();
+		    $("#SubmitAndCalculate").click(function() {
+		
+			  hvor = ($("#gcsdifa").val() * 1).toFixed(2);
+              var hvortr = $("#gcsdiffb").val();
+              if (hvortr == "odd") {
+                $("#gcsdiffb").val("even");
+                   } else {
+                   $("#gcsdiffb").val("odd");
+                   }
+
+		         $("#GoodResults tr").removeClass("TRactive");
+                 $("#GoodResults").show();
+                 $("#HeaderRow").hide();
+                 $("#ils").hide();				 
+		         ext1();
+
+		 $("#GoodResults").prepend("<tr class=\"TRactive " + hvortr + "\"><td>" + i + "</td><td>" + document.getElementById("1cdcTax173").innerHTML + "</td><td>" + document.getElementById("1cdcTax172").innerHTML + "</td><td>" + document.getElementById("1cdcTax171").innerHTML + "</td><td>" + document.getElementById("1cdcTax17").innerHTML + "</td></tr>");
+		 $("#GoodResults").prepend("<tr id=\"ils\"><th colspan=\"6\">Saved Calculations</th></tr><tr id=\"HeaderRow\"><th>No.</th><th>Basic Rate</th><th>Higher Rate</th><th>Higher Rate</th><th>Total Tax</th></tr>");	
+			i = i+1;			
+		 return false;
+            }); 
+			ext1();
+        });
+</script>
+
+
+ 
+<div class="Begin goodCalculator">
+ <form class="contact">	
+		 
+<fieldset>
+<legend>UK Dividend Tax Calculator</legend>
+
+         <input type="hidden" id="gcsdifa" name="csipts" value="0" />
+         <input type="hidden" id="gcsdiffb" name="csipts" value="TRelemOdd" />
+<p>
+<label for="grosssalary1">Gross Salary (&pound;):</label> 
+<input id="grosssalary1" value="20000" />
+</p>
+<p>
+<label for="grossotherincome1">Gross Other Income (&pound;):</label> 
+<input id="grossotherincome1" value="0" />
+</p>
+<p>
+<label for="netdividends1">Net Dividend (&pound;):</label> 
+<input id="netdividends1" value="30000" />
+</p>
+<p>
+<input type="button" id="SubmitAndCalculate" value="Calculate" onclick="javascript:ext1();" />
+</p>
+</fieldset>
+
+<table class="GoodResults" style="width:100%;">
+<tr>
+<th colspan="5">UK Dividend Tax Calculator &ndash; Results</th>
+</tr>
+		<tr style="background:#e4e4e4;">
+			<th>Band</th>
+			<th>Rate</th>
+			<th>Lower Limit</th>
+			<th>Upper Limit</th>
+			<th>Tax</th>
+		</tr>
+		<tr class="odd" style="background:#ffffff">
+			<td style="text-align:left;">Basic Rate</td>
+			 <td style="text-align:left;">7.5%</td>
+			 <td style="text-align:left;">0</td>
+			 <td style="text-align:left;">&pound;32000</td>
+			<td style="text-align:left;" colspan="2"><span id="1cdcTax173"></span></td>
+		</tr>
+		<tr style="background:#ffffff">
+			<td style="text-align:left;">Higher Rate</td>
+			 <td style="text-align:left;">32.5%</td>
+			 <td style="text-align:left;">&pound;32000</td>
+			 <td style="text-align:left;">&pound;150000</td>
+			<td style="text-align:left;" colspan="2"><span id="1cdcTax172"></span></td>
+		</tr>
+		<tr class="odd" style="background:#ffffff">
+			<td style="text-align:left;">Additional Rate</td>
+			<td style="text-align:left;">38.1%</td>
+			 <td style="text-align:left;">&pound;150000</td>
+			 <td style="text-align:left;">---</td>
+			<td style="text-align:left;" colspan="2"><span id="1cdcTax171"></span></td>
+		</tr>
+		<tr style="background:#ffffff">
+			<td style="text-align:right;" colspan="4"><b>Total Tax:</b></td>
+			<td style="text-align:left;"><span id="1cdcTax17"></span></td>
+		</tr>
+		
+</table>		  
+		  
+      </form>
+  </div>	
+		  
+<table id="GoodResults" class="GoodResults" style="width:100%;"></table>
+
+<center id="note" style="padding-top:10px;">powered by <a href="http://goodcalculators.com">goodcalculators.com</a></center>
+
+	  
+</body>
+ </html>
